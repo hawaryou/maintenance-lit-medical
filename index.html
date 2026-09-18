@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fiche de maintenance – lit médicalisé</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div class="ref">ENR08-V05</div>
+    <h1>FICHE DE MAINTENANCE<br>LIT MÉDICALISÉ</h1>
+    <p class="subtitle">Formulaire numérique – Euromed</p>
+  </header>
+
+  <form id="maintenanceForm">
+    <section class="card">
+      <h2>1. Identification</h2>
+      <div class="grid">
+        <label>Maintenance
+          <select name="maintenance" required><option value="">Choisir…</option><option>ANNUELLE</option><option>PÉRIODIQUE</option></select>
+        </label>
+        <label>Marque / modèle
+          <input name="modele" value="HMS" required>
+        </label>
+        <label>Année de fabrication
+          <input name="annee" type="number" min="1900" max="2100">
+        </label>
+        <label>N° de série ou de parc
+          <input name="serie">
+        </label>
+        <label>Barrières
+          <select name="barrieres"><option value="">Choisir…</option><option>Oui</option><option>Non</option></select>
+        </label>
+        <label>N° de série barrières
+          <input name="serie_barrieres">
+        </label>
+        <label>Potence
+          <select name="potence"><option value="">Choisir…</option><option>Oui</option><option>Non</option></select>
+        </label>
+        <label>N° de série potence
+          <input name="serie_potence">
+        </label>
+        <label class="wide">Environnement d'application
+          <select name="environnement"><option value="">Choisir…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </label>
+        <label>Localisation
+          <input name="localisation">
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Contrôles</h2>
+      <p class="hint">Pour chaque point, sélectionnez <b>Non applicable</b>, <b>Conforme</b> ou <b>Non conforme</b>.</p>
+      <div id="checks"></div>
+    </section>
+
+    <section class="card">
+      <h2>3. Essai électrique</h2>
+      <label class="checkline"><input type="checkbox" name="essai62353"> Essai récurrent suivant NF EN 62353 réalisé – voir le rapport d'essai pour le détail de conformité.</label>
+    </section>
+
+    <section class="card">
+      <h2>4. Observations et pièces changées</h2>
+      <label>Observations<textarea name="observations" rows="5"></textarea></label>
+      <label>Pièces changées<textarea name="pieces" rows="4"></textarea></label>
+    </section>
+
+    <section class="card">
+      <h2>5. Finalisation</h2>
+      <div class="grid">
+        <label>Consignes de sécurité
+          <select name="securite"><option value="">Choisir…</option><option>OUI</option><option>NON</option></select>
+        </label>
+        <label>Fait le
+          <input name="date" type="date" required>
+        </label>
+        <label>Nom / prénom du technicien
+          <input name="technicien" required>
+        </label>
+        <label>Nom / prénom du client
+          <input name="client">
+        </label>
+      </div>
+      <div class="signatures">
+        <div><span>Signature technicien</span><canvas id="sigTech" width="500" height="180"></canvas><button type="button" class="secondary" data-clear="sigTech">Effacer</button></div>
+        <div><span>Signature client</span><canvas id="sigClient" width="500" height="180"></canvas><button type="button" class="secondary" data-clear="sigClient">Effacer</button></div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="button" id="previewBtn">Prévisualiser / télécharger le PDF</button>
+      <button type="button" id="sendBtn" class="primary">Générer le PDF et l'envoyer par e-mail</button>
+    </div>
+    <p id="status" class="status" role="status"></p>
+  </form>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
