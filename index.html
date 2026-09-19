@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ENR08-V05 — Fiche de maintenance lit médicalisé</title>
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body>
+<header class="top">
+  <img src="euromed-logo.jpeg" alt="EuroMed">
+  <div class="code">ENR08-V05</div>
+</header>
+
+<main>
+  <div class="title">
+    <h1>FICHE DE MAINTENANCE LIT MÉDICALISÉ</h1>
+    <div class="maintenance">
+      <span>Maintenance :</span>
+      <label>ANNUELLE <input type="radio" name="maintenance" value="ANNUELLE"></label>
+      <label>PÉRIODIQUE <input type="radio" name="maintenance" value="PÉRIODIQUE"></label>
+    </div>
+  </div>
+
+  <section class="ident">
+    <div>
+      <h2>IDENTIFICATION</h2>
+      <label>Marque / modèle : <input id="marque" value="HMS"></label>
+      <label>Année de fabrication : <input id="annee"></label>
+      <label>N° de série ou de parc : <input id="serie"></label>
+      <label>Barrières :
+        <input type="radio" name="barrieres" value="Oui"> oui
+        <input type="radio" name="barrieres" value="Non"> non
+        &nbsp;&nbsp; N° de série : <input id="serieBar">
+      </label>
+      <label>Potence :
+        <input type="radio" name="potence" value="Oui"> oui
+        <input type="radio" name="potence" value="Non"> non
+        &nbsp; N° de série : <input id="seriePot">
+      </label>
+
+      <div class="obsolescence">
+        <div class="obsolescence-title">Obsolescence</div>
+        <div class="slider-row">
+          <span class="min-label">1</span>
+          <input id="obsolescence" type="range" min="1" max="5" step="1" value="1"
+                 aria-label="Niveau d'obsolescence de 1 à 5">
+          <span class="max-label">5</span>
+          <output id="obsolescenceValue">1</output>
+        </div>
+        <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+      </div>
+
+      <label>Environnement d'application :
+        <span class="checks">
+          1 <input type="radio" name="env" value="1">
+          &nbsp;2 <input type="radio" name="env" value="2">
+          &nbsp;3 <input type="radio" name="env" value="3">
+          &nbsp;4 <input type="radio" name="env" value="4">
+          &nbsp;5 <input type="radio" name="env" value="5">
+        </span>
+      </label>
+    </div>
+
+    <div>
+      <h2>LOCALISATION</h2>
+      <label>Établissement / client : <input id="client"></label>
+      <label>Service / chambre : <input id="localisation"></label>
+      <label>Adresse : <input id="adresse"></label>
+      <label>Ville : <input id="ville"></label>
+      <label>Référence intervention : <input id="reference"></label>
+    </div>
+  </section>
+
+  <div id="controls"></div>
+
+  <section class="notes">
+    <div><h2>OBSERVATIONS :</h2><textarea id="observations"></textarea></div>
+    <div><h2>Pièces changées :</h2><textarea id="pieces"></textarea></div>
+  </section>
+
+  <section class="security">
+    <label><strong>Rappel des consignes de sécurité</strong> :
+      <input type="radio" name="securite" value="OUI"> OUI
+      &nbsp; <input type="radio" name="securite" value="NON"> NON
+    </label>
+    <small>* suivant norme NF EN 60601-2-52</small>
+  </section>
+
+  <section class="sign">
+    <label>Fait le : <input type="date" id="date"></label>
+    <label>Nom Prénom du technicien : <input id="technicien"></label>
+    <div class="signatures">
+      <div><strong>Signature du technicien</strong><canvas id="sigTech"></canvas><button type="button" class="clear" data-canvas="sigTech">Effacer</button></div>
+      <div><strong>Signature du client</strong><canvas id="sigClient"></canvas><button type="button" class="clear" data-canvas="sigClient">Effacer</button></div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button id="pdf" class="primary">Générer le PDF</button>
+    <button id="send" class="primary">Générer le PDF et envoyer par e-mail</button>
+    <span id="status"></span>
+  </div>
+</main>
+<footer>ENR08-V05 · Fiche de maintenance lit médicalisé · EuroMed</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
