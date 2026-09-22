@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ENR08-V05 — Fiche de maintenance lit médicalisé</title>
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+
+  <!-- Moteurs de scan repris du système fourni : EAN-13 / Code 128 / QR / Data Matrix -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script type="module">
+    window.__zbarPolyfillReady = import(
+      "https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.23/dist/main.js"
+    ).then(function(mod) {
+      window.BarcodeDetectorPolyfill = mod.BarcodeDetectorPolyfill;
+      return mod.BarcodeDetectorPolyfill;
+    }).catch(function(error) {
+      console.error("Chargement ZBar/WebAssembly impossible :", error);
+      window.__zbarPolyfillError = error;
+      throw error;
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/iife/reader/index.js"></script>
+
+
+<style>
+.scan-row{display:flex;gap:8px;align-items:stretch}.scan-row>input{flex:1;min-width:0}.scan-actions{display:flex;gap:6px;flex-wrap:wrap}.scan-button,.photo-button,.stop-button,.zoom-button{border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}.scan-button{background:#4f46e5;color:#fff}.barcode-button{background:#374151}.photo-button{width:100%;margin-top:7px;background:#5f6368;color:#fff}.scanner{display:none;margin-top:10px;padding:10px;background:#000;border-radius:12px;overflow:hidden}.reader{position:relative;width:100%;overflow:hidden;border-radius:8px}.barcode-reader{position:relative;background:#000;min-height:220px}.barcode-reader:after{content:"";position:absolute;left:3%;right:3%;top:42%;height:26%;border:3px solid rgba(255,255,255,.9);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}.scan-overlay-2d{position:absolute;left:50%;top:50%;width:62%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.9);border-radius:10px;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;z-index:3}.scan-overlay-2d span{background:rgba(0,0,0,.65);color:#fff;padding:5px 9px;border-radius:6px;font-size:13px;font-weight:700}.scanner-title{color:#fff;text-align:center;font-weight:700;margin-bottom:8px}.scan-hint{color:#ddd;text-align:center;font-size:12px;margin:8px 4px;line-height:1.4}.scanner-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.zoom-button{flex:1;min-width:75px;background:#fff;color:#222}.stop-button{background:#d93025;color:#fff}.hidden-file{display:none}.serial-inline{display:block;margin-top:7px}.serial-inline .scan-row{margin-top:5px}
+@media(max-width:600px){.scan-row{flex-direction:column}.scan-actions{display:grid;grid-template-columns:1fr 1fr}.scan-actions .scan-button{width:100%;min-height:44px}.scanner-tools .zoom-button{min-height:42px}.stop-button{width:100%;min-height:44px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <img src="euromed-logo.jpeg" alt="EuroMed">
+  <div class="code">ENR08-V05</div>
+</header>
+
+<main>
+  <div class="title">
+    <h1>FICHE DE MAINTENANCE LIT MÉDICALISÉ</h1>
+    <div class="maintenance">
+      <span>Maintenance :</span>
+      <label>ANNUELLE <input type="radio" name="maintenance" value="ANNUELLE"></label>
+      <label>PÉRIODIQUE <input type="radio" name="maintenance" value="PÉRIODIQUE"></label>
+    </div>
+  </div>
+
+  <section class="ident">
+    <div>
+      <h2>IDENTIFICATION</h2>
+      <label>Marque / modèle : <input id="marque" value="HMS"></label>
+      <label>Année de fabrication : <input id="annee"></label>
+      <label>N° de série ou de parc :
+        <div class="scan-row">
+          <input id="serie" type="text" placeholder="Code du lit / parc">
+          <div class="scan-actions">
+            <button type="button" class="scan-button" onclick="startScanner('serie','qr')">📷 QR précis</button>
+            <button type="button" class="scan-button barcode-button" onclick="startScanner('serie','barcode')">📷 Code-barres</button>
+          </div>
+        </div>
+        <button type="button" class="photo-button" onclick="choosePhoto('serie')">🖼️ Lire une photo du code</button>
+        <input id="file-serie" class="hidden-file" type="file" accept="image/*" capture="environment" onchange="scanPhoto('serie', this)">
+        <div id="scanner-serie" class="scanner">
+          <div class="scanner-title">Scanner le code</div>
+          <div id="reader-serie" class="reader"></div>
+          <div class="scan-hint">QR : placez le code au centre. Code-barres : gardez toute la largeur visible.</div>
+          <div class="scanner-tools">
+            <button type="button" class="zoom-button" onclick="setCameraZoom(1)">🔎 1×</button>
+            <button type="button" class="zoom-button" onclick="setCameraZoom(1.5)">🔎 1,5×</button>
+            <button type="button" class="zoom-button" onclick="setCameraZoom(2)">🔎 2×</button>
+            <button type="button" class="zoom-button" onclick="setCameraFocus()">🎯 Autofocus</button>
+            <button type="button" class="stop-button" onclick="stopScanner('serie')">Fermer la caméra</button>
+          </div>
+        </div>
+      </label>
+      <label>Barrières :
+        <input type="radio" name="barrieres" value="Oui"> oui
+        <input type="radio" name="barrieres" value="Non"> non
+        <span class="serial-inline">N° de série :
+        <div class="scan-row">
+          <input id="serieBar" type="text" placeholder="Code de la barrière">
+          <div class="scan-actions">
+            <button type="button" class="scan-button" onclick="startScanner('serieBar','qr')">📷 QR</button>
+            <button type="button" class="scan-button barcode-button" onclick="startScanner('serieBar','barcode')">📷 Barres</button>
+          </div>
+        </div>
+        <button type="button" class="photo-button" onclick="choosePhoto('serieBar')">🖼️ Lire une photo</button>
+        <input id="file-serieBar" class="hidden-file" type="file" accept="image/*" capture="environment" onchange="scanPhoto('serieBar', this)">
+        <div id="scanner-serieBar" class="scanner"><div class="scanner-title">Scanner le code de la BARRIÈRE</div><div id="reader-serieBar" class="reader"></div><div class="scan-hint">QR : placez le code au centre. Code-barres : gardez toute la largeur visible.</div><div class="scanner-tools"><button type="button" class="zoom-button" onclick="setCameraZoom(1)">🔎 1×</button><button type="button" class="zoom-button" onclick="setCameraZoom(1.5)">🔎 1,5×</button><button type="button" class="zoom-button" onclick="setCameraZoom(2)">🔎 2×</button><button type="button" class="zoom-button" onclick="setCameraFocus()">🎯 Autofocus</button><button type="button" class="stop-button" onclick="stopScanner('serieBar')">Fermer la caméra</button></div></div>
+        </span>
+      </label>
+      <label>Potence :
+        <input type="radio" name="potence" value="Oui"> oui
+        <input type="radio" name="potence" value="Non"> non
+        <span class="serial-inline">N° de série :
+        <div class="scan-row">
+          <input id="seriePot" type="text" placeholder="Code de la potence">
+          <div class="scan-actions"><button type="button" class="scan-button" onclick="startScanner('seriePot','qr')">📷 QR</button><button type="button" class="scan-button barcode-button" onclick="startScanner('seriePot','barcode')">📷 Barres</button></div>
+        </div>
+        <button type="button" class="photo-button" onclick="choosePhoto('seriePot')">🖼️ Lire une photo</button>
+        <input id="file-seriePot" class="hidden-file" type="file" accept="image/*" capture="environment" onchange="scanPhoto('seriePot', this)">
+        <div id="scanner-seriePot" class="scanner"><div class="scanner-title">Scanner le code de la POTENCE</div><div id="reader-seriePot" class="reader"></div><div class="scan-hint">QR : placez le code au centre. Code-barres : gardez toute la largeur visible.</div><div class="scanner-tools"><button type="button" class="zoom-button" onclick="setCameraZoom(1)">🔎 1×</button><button type="button" class="zoom-button" onclick="setCameraZoom(1.5)">🔎 1,5×</button><button type="button" class="zoom-button" onclick="setCameraZoom(2)">🔎 2×</button><button type="button" class="zoom-button" onclick="setCameraFocus()">🎯 Autofocus</button><button type="button" class="stop-button" onclick="stopScanner('seriePot')">Fermer la caméra</button></div></div>
+        </span>
+      </label>
+      <label>Environnement d'application :
+        <span class="checks">
+          1 <input type="radio" name="env" value="1">
+          &nbsp;2 <input type="radio" name="env" value="2">
+          &nbsp;3 <input type="radio" name="env" value="3">
+          &nbsp;4 <input type="radio" name="env" value="4">
+          &nbsp;5 <input type="radio" name="env" value="5">
+        </span>
+      </label>
+    </div>
+
+    <div>
+      <h2>LOCALISATION</h2>
+      <label>Établissement / client : <input id="client"></label>
+      <label>Service / chambre : <input id="localisation"></label>
+      <label>Adresse : <input id="adresse"></label>
+      <label>Ville : <input id="ville"></label>
+      <label>Référence intervention : <input id="reference"></label>
+    </div>
+  </section>
+
+  <div id="controls"></div>
+
+  <section class="obsolescence-panel">
+    <div class="obsolescence-title">OBSOLESCENCE</div>
+    <div class="obsolescence-slider-wrap">
+      <span class="obs-end obs-1">1</span>
+      <input id="obsolescence" type="range" min="1" max="5" step="1" value="1" aria-label="Niveau d'obsolescence de 1 à 5">
+      <span class="obs-end obs-5">5</span>
+      <output id="obsolescenceValue" aria-live="polite">1</output>
+    </div>
+    <div class="obs-scale"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+  </section>
+
+  <section class="notes">
+    <div><h2>OBSERVATIONS :</h2><textarea id="observations"></textarea></div>
+    <div><h2>Pièces changées :</h2><textarea id="pieces"></textarea></div>
+  </section>
+
+  <section class="security">
+    <label><strong>Rappel des consignes de sécurité</strong> :
+      <input type="radio" name="securite" value="OUI"> OUI
+      &nbsp; <input type="radio" name="securite" value="NON"> NON
+    </label>
+    <small>* suivant norme NF EN 60601-2-52</small>
+  </section>
+
+  <section class="sign">
+    <label>Fait le : <input type="date" id="date"></label>
+    <label>Nom Prénom du technicien : <input id="technicien"></label>
+    <div class="signatures">
+      <div><strong>Signature du technicien</strong><canvas id="sigTech"></canvas><button type="button" class="clear" data-canvas="sigTech">Effacer</button></div>
+      <div><strong>Signature du client</strong><canvas id="sigClient"></canvas><button type="button" class="clear" data-canvas="sigClient">Effacer</button></div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button id="pdf" class="primary">Générer le PDF</button>
+    <button id="send" class="primary">Générer le PDF et envoyer par e-mail</button>
+    <span id="status"></span>
+  </div>
+</main>
+<footer>ENR08-V05 · Fiche de maintenance lit médicalisé · EuroMed</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
