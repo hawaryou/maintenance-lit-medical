@@ -37,7 +37,7 @@ function doPost(e) {
     const corps = [
       'Bonjour,',
       '',
-      'Veuillez trouver ci-joint la fiche de maintenance ENR08-V05.',
+      'Veuillez trouver ci-joint la fiche de maintenance de lit médicalisé ENR08-V05.',
       '',
       `Client : ${client}`,
       `Technicien : ${technicien}`,
