@@ -399,3 +399,5 @@ const batchSaveBottom=document.getElementById('batchSaveBottom');
 const batchFinishBottom=document.getElementById('batchFinishBottom');
 batchSaveBottom?.addEventListener('click',function(){saveCurrentBedToBatch();});
 batchFinishBottom?.addEventListener('click',function(){finishBatch();});
+
+document.getElementById('openPdfPreviewTab')?.addEventListener('click',()=>{if(!previewObjectUrl||!pendingPDFResult)return;const opened=window.open(previewObjectUrl,'_blank');if(!opened){pdfPreviewStatus.textContent='Le navigateur a bloqué le nouvel onglet. Utilisez « Télécharger le PDF » pour ouvrir le document.';}});
