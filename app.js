@@ -96,22 +96,37 @@ function resetBedFieldsForNext(){
 function startBatch(){
   batchMode=true;batchFinalized=false;batchRecords=[];clearCanvas(sigClient);updateBatchUI();showMessage('Tournée multi-lits démarrée.','success');window.scrollTo({top:0,behavior:'smooth'});
 }
+function hasCurrentBedData(){
+  const hasControls=sections.some(([title,items],si)=>items.some((it,i)=>!!checked(`c_${si}_${i}`)));
+  return !!(val('serie').trim()||val('annee').trim()||val('observations').trim()||val('pieces').trim()||val('sangles').trim()||checked('avisService')||hasControls||Number(val('obsolescence')||1)>1);
+}
 function saveCurrentBedToBatch(){
-  if(!batchMode||batchFinalized)return;
+  if(!batchMode||batchFinalized)return false;
   const d=collect();
-  if(!d.serie.trim()){showMessage('Renseignez le N° de série / parc du lit avant de l’enregistrer.','error');document.getElementById('serie')?.focus();return}
+  if(!d.serie.trim()){
+    showMessage('Le contrôle en cours n’a pas été ajouté : renseignez son N° de série / parc, puis réessayez.','error');
+    document.getElementById('serie')?.focus();
+    return false;
+  }
   d.sigClient='';
   batchRecords.push(d);
   updateBatchUI();
-  showMessage(`Lit ${batchRecords.length} enregistré. Préparez le lit suivant.`,'success');
+  showMessage(`Lit ${batchRecords.length} enregistré. Préparez le suivant.`,'success');
   resetBedFieldsForNext();
+  return true;
 }
 function finishBatch(){
-  if(!batchMode)return;
-  const currentSerie=val('serie').trim();
-  if(currentSerie&&!batchFinalized){ saveCurrentBedToBatch(); }
-  if(batchRecords.length===0){showMessage('Enregistrez au moins un lit avant de terminer la tournée.','error');return;}
-  batchFinalized=true;updateBatchUI();
+  if(!batchMode||batchFinalized)return;
+  if(hasCurrentBedData()){
+    const saved=saveCurrentBedToBatch();
+    if(!saved)return;
+  }
+  if(batchRecords.length===0){
+    showMessage('Réalisez puis enregistrez au moins un appareil avant de terminer la tournée.','error');
+    return;
+  }
+  batchFinalized=true;
+  updateBatchUI();
   document.getElementById('clientSignatureBlock')?.scrollIntoView({behavior:'smooth',block:'center'});
   showMessage('La tournée est terminée. Faites signer le client une seule fois.','success');
 }
@@ -300,36 +315,71 @@ async function generateCurrentOrBatchPDF(){
   return makePDF();
 }
 
+let pendingPDFResult=null;
+let previewObjectUrl=null;
+const pdfPreviewModal=document.getElementById('pdfPreviewModal');
+const pdfPreviewFrame=document.getElementById('pdfPreviewFrame');
+const pdfPreviewStatus=document.getElementById('pdfPreviewStatus');
+function pdfFilename(result){
+  return batchFinalized?`ENR08-V05_Tournee_${new Date().toISOString().slice(0,10)}_${result.records.length}-equipements.pdf`:`ENR08-V05_${result.data.serie||'maintenance'}_${result.data.date||''}.pdf`;
+}
+function openPDFPreview(result){
+  pendingPDFResult=result;
+  if(previewObjectUrl)URL.revokeObjectURL(previewObjectUrl);
+  previewObjectUrl=URL.createObjectURL(result.pdf.output('blob'));
+  pdfPreviewFrame.src=previewObjectUrl;
+  pdfPreviewStatus.textContent='';
+  pdfPreviewModal.classList.add('show');pdfPreviewModal.setAttribute('aria-hidden','false');
+}
+function closePDFPreview(){
+  pdfPreviewModal.classList.remove('show');pdfPreviewModal.setAttribute('aria-hidden','true');
+  pdfPreviewFrame.removeAttribute('src');
+  if(previewObjectUrl){URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=null;}
+  pendingPDFResult=null;
+}
+async function sendPDFResult(result){
+  const status=document.getElementById('status');
+  const data=batchFinalized?result.records[0]:result.data;
+  const filename=pdfFilename(result);
+  if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.startsWith('https://script.google.com/macros/s/')){
+    pdfPreviewStatus.textContent='URL Google Apps Script non configurée : téléchargement du PDF.';
+    result.pdf.save(filename);return;
+  }
+  pdfPreviewStatus.textContent='Transmission en cours…';status.textContent='Envoi du PDF…';
+  const b64=result.pdf.output('datauristring').split(',')[1];
+  const params=new URLSearchParams({token:APP_TOKEN,pdf_base64:b64,filename,client:data.client,technicien:data.technicien,date:data.date,reference:data.reference,serie:batchFinalized?`${result.records.length} lits`:data.serie});
+  await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
+  const msg=batchFinalized?`Dossier de ${result.records.length} lits transmis à ${EMAIL_TO}. Signature client unique appliquée.`:`Demande d’envoi transmise à ${EMAIL_TO}. Vérifiez la boîte de réception.`;
+  status.textContent=msg;pdfPreviewStatus.textContent='Demande d’envoi transmise. Vérifiez la boîte de réception du destinataire.';
+  document.getElementById('confirmSendPdf').disabled=true;
+  showMessage(msg,'success');
+}
 document.getElementById('pdf').onclick=async()=>{
   try{
     const result=await generateCurrentOrBatchPDF();
-    if(batchFinalized){
-      result.pdf.save(`ENR08-V05_Tournee_${new Date().toISOString().slice(0,10)}_${result.records.length}-lits.pdf`);
-      showMessage(`${result.records.length} certificats regroupés dans un seul PDF. Signature client unique appliquée.`,'success');
-    }else{
-      const data=result.data;result.pdf.save(`ENR08-V05_${data.serie||'maintenance'}_${data.date||''}.pdf`);
-    }
+    openPDFPreview(result);
   }catch(e){console.error(e);showMessage(e.message||'Erreur lors de la génération du PDF.','error')}
 };
-
 document.getElementById('send').onclick=async()=>{
-  const status=document.getElementById('status');
   try{
-    status.textContent='Préparation du PDF…';
+    document.getElementById('confirmSendPdf').disabled=false;
     const result=await generateCurrentOrBatchPDF();
-    const data=batchFinalized?result.records[0]:result.data;
-    const filename=batchFinalized?`ENR08-V05_Tournee_${new Date().toISOString().slice(0,10)}_${result.records.length}-lits.pdf`:`ENR08-V05_${data.serie||'maintenance'}_${data.date||''}.pdf`;
-    if(!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.startsWith('https://script.google.com/macros/s/')){
-      status.textContent='URL Google Apps Script non configurée : le PDF va être téléchargé.';
-      result.pdf.save(filename);return;
-    }
-    status.textContent=batchFinalized?'Envoi du dossier de maintenance…':'Envoi du PDF…';
-    const b64=result.pdf.output('datauristring').split(',')[1];
-    const params=new URLSearchParams({token:APP_TOKEN,pdf_base64:b64,filename,client:data.client,technicien:data.technicien,date:data.date,reference:data.reference,serie:batchFinalized?`${result.records.length} lits`:data.serie});
-    await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
-    status.textContent=batchFinalized?`Dossier de ${result.records.length} lits transmis à ${EMAIL_TO}. Signature client unique appliquée.`:`Demande d’envoi transmise à ${EMAIL_TO}. Vérifiez la boîte de réception.`;
-  }catch(e){
-    console.error(e);status.textContent='Erreur lors de la transmission. Le PDF va être téléchargé.';
-    try{const result=await generateCurrentOrBatchPDF();const filename=batchFinalized?`ENR08-V05_Tournee_${new Date().toISOString().slice(0,10)}_${result.records.length}-lits.pdf`:`ENR08-V05_${result.data.serie||'maintenance'}_${result.data.date||''}.pdf`;result.pdf.save(filename)}catch(_){}
-  }
+    openPDFPreview(result);
+  }catch(e){console.error(e);showMessage(e.message||'Erreur lors de la préparation du PDF.','error')}
 };
+document.getElementById('downloadPreviewPdf').onclick=()=>{
+  if(!pendingPDFResult)return;
+  pendingPDFResult.pdf.save(pdfFilename(pendingPDFResult));
+};
+document.getElementById('confirmSendPdf').onclick=async()=>{
+  if(!pendingPDFResult)return;
+  const button=document.getElementById('confirmSendPdf');button.disabled=true;
+  try{await sendPDFResult(pendingPDFResult);}catch(e){console.error(e);pdfPreviewStatus.textContent='Erreur pendant la transmission. Vous pouvez télécharger le PDF et réessayer.';document.getElementById('status').textContent='Erreur lors de la transmission.';button.disabled=false;}
+};
+document.getElementById('closePdfPreview').onclick=closePDFPreview;
+pdfPreviewModal.addEventListener('click',e=>{if(e.target===pdfPreviewModal)closePDFPreview()});
+document.getElementById('openPrivacy').onclick=()=>{const m=document.getElementById('privacyModal');m.classList.add('show');m.setAttribute('aria-hidden','false')};
+function closePrivacy(){const m=document.getElementById('privacyModal');m.classList.remove('show');m.setAttribute('aria-hidden','true')}
+document.getElementById('closePrivacy').onclick=closePrivacy;
+document.getElementById('privacyModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePrivacy()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePDFPreview();closePrivacy()}});
