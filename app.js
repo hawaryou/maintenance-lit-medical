@@ -383,3 +383,8 @@ function closePrivacy(){const m=document.getElementById('privacyModal');m.classL
 document.getElementById('closePrivacy').onclick=closePrivacy;
 document.getElementById('privacyModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePrivacy()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePDFPreview();closePrivacy()}});
+
+const batchSaveBottom=document.getElementById('batchSaveBottom');
+const batchFinishBottom=document.getElementById('batchFinishBottom');
+batchSaveBottom?.addEventListener('click',function(){saveCurrentBedToBatch();});
+batchFinishBottom?.addEventListener('click',function(){finishBatch();});
