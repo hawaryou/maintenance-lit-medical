@@ -430,3 +430,12 @@ html[data-theme="light"] body input,html[data-theme="light"] body select,html[da
 html[data-theme="light"] body button:not(.theme-toggle){background:#e8f4fb!important;color:#111827!important;border-color:#9bbdd0!important}
 html[data-theme="light"] body .theme-toggle{color:#f8fafc!important;background:linear-gradient(135deg,#123b58,#30245c)!important;border-color:#48d8f0!important}
 html[data-theme="light"] body a.hub-menu{color:#fff!important;background:linear-gradient(135deg,#078fc4,#5946df)!important}
+
+
+/* Le curseur d'obsolescence garde sa couleur fonctionnelle dans les deux thèmes */
+html[data-theme="light"] body .obsolescence-panel{background:#fff!important;color:#172b3a!important;border-color:#b8cbd6!important}
+html[data-theme="light"] body .obsolescence-title{color:#274f60!important}
+html[data-theme="light"] body .obsolescence-slider-wrap input[type="range"]{background:linear-gradient(to right,#2e7d32 0%,#8bc34a 25%,#fbc02d 50%,#ef6c00 75%,#c62828 100%)!important}
+html[data-theme="light"] body .obsolescence-slider-wrap input[type="range"]::-webkit-slider-thumb{background:var(--obs-color,#2e7d32)!important}
+html[data-theme="light"] body .obsolescence-slider-wrap input[type="range"]::-moz-range-thumb{background:var(--obs-color,#2e7d32)!important}
+html[data-theme="dark"] body .obsolescence-slider-wrap input[type="range"]{background:linear-gradient(to right,#2e7d32 0%,#8bc34a 25%,#fbc02d 50%,#ef6c00 75%,#c62828 100%)!important}
