@@ -368,7 +368,8 @@ async function sendPDFResult(result){
   pdfPreviewStatus.textContent='Transmission en cours…';status.textContent='Envoi du PDF…';
   const b64=result.pdf.output('datauristring').split(',')[1];
   const params=new URLSearchParams({token:APP_TOKEN,pdf_base64:b64,filename,client:data.client,technicien:data.technicien,date:data.date,reference:data.reference,serie:batchFinalized?`${result.records.length} lits`:data.serie});
-  await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
+  const response=await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
+  if(response.status===202){const queued='📴 PDF conservé dans la file d’envoi locale. Il sera envoyé lorsque la connexion reviendra. Vérifiez ensuite la réception du courriel.';status.textContent=queued;pdfPreviewStatus.textContent=queued;document.getElementById('confirmSendPdf').disabled=true;showMessage(queued,'success');return;}
   const msg=batchFinalized?`Dossier de ${result.records.length} lits transmis à ${EMAIL_TO}. Signature client unique appliquée.`:`Demande d’envoi transmise à ${EMAIL_TO}. Vérifiez la boîte de réception.`;
   status.textContent=msg;pdfPreviewStatus.textContent='Demande d’envoi transmise. Vérifiez la boîte de réception du destinataire.';
   document.getElementById('confirmSendPdf').disabled=true;
