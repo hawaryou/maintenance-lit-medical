@@ -374,12 +374,13 @@ async function sendPDFResult(result){
   document.getElementById('confirmSendPdf').disabled=true;
   showMessage(msg,'success');
 }
-document.getElementById('pdf').onclick=async()=>{
+document.getElementById('previewPdf').onclick=async()=>{
   try{
     const result=await generateCurrentOrBatchPDF();
     openPDFPreview(result);
   }catch(e){console.error(e);showMessage(e.message||'Erreur lors de la génération du PDF.','error')}
 };
+document.getElementById('pdf').onclick=()=>document.getElementById('previewPdf').click();
 document.getElementById('send').onclick=async()=>{
   try{
     document.getElementById('confirmSendPdf').disabled=false;
