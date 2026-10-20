@@ -3,7 +3,7 @@ const CACHE_NAME="euromed-lit-offline-v1";
 const SCOPE=self.registration.scope;
 const LOCAL_FILES=[
  SCOPE,SCOPE+"index.html",SCOPE+"style.css?v=20261020-rgpd-v1",SCOPE+"config.js",
- SCOPE+"app.js?v=20261020-mobile-preview-v3",SCOPE+"euromed-logo.jpeg",SCOPE+"scan-success-euromed.jpg"
+ SCOPE+"app.js?v=20261020-mobile-preview-v3",SCOPE+"offline-queue.js",SCOPE+"euromed-logo.jpeg",SCOPE+"scan-success-euromed.jpg"
 ];
 const REMOTE_FILES=[
  "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
