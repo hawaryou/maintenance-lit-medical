@@ -307,6 +307,9 @@ function renderPDFPage(pdf,d){
   const obsColor={1:[46,125,50],2:[139,195,74],3:[251,192,45],4:[239,108,0],5:[198,40,40]}[Number(d.obsolescence)]||[120,120,120];
   pdf.setFillColor(...obsColor);pdf.roundedRect(M+2,y+8,42,8,1.5,1.5,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.text(`OBSOLESCENCE : ${d.obsolescence||'—'} / 5`,M+23,y+13.3,{align:'center'});pdf.setTextColor(0,0,0);pdf.setFont('helvetica','normal');
   const obsText=pdf.splitTextToSize(d.observations||'',84);pdf.text(obsText,M+3,y+21);pdf.text(pdf.splitTextToSize(d.pieces||'',86),112,y+11);y+=45;
+
+  // Garder les signatures entièrement sur la page : le PDF A4 s'arrête à 297 mm.
+  if(y+55>285){pdf.addPage();y=12;}
   pdf.text(`Rappel des consignes de sécurité : ${d.securite||'—'}`,M,y);pdf.text('* suivant norme NF EN 60601-2-52',M,y+5);pdf.text(`Fait le : ${d.date||'—'}    Technicien : ${d.technicien||'—'}`,M,y+12);
   pdf.setFont('helvetica','bold');pdf.text('Signature du technicien',M,y+19);pdf.text('Signature du client',110,y+19);pdf.rect(M,y+21,90,30);pdf.rect(110,y+21,90,30);
   if(d.sigTech)pdf.addImage(d.sigTech,'PNG',M+2,y+23,86,26);if(d.sigClient)pdf.addImage(d.sigClient,'PNG',112,y+23,86,26);
