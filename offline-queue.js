@@ -16,7 +16,10 @@
    if(method==='POST'&&url&&url.startsWith(ENDPOINT)&&!navigator.onLine){
      try{let body=init&&init.body!==undefined?init.body:(input instanceof Request?await input.clone().text():null);if(typeof body!=='string')throw new Error('Le corps de la requête n’est pas un texte sérialisable');const headers={};const h=(init&&init.headers)||(input instanceof Request?input.headers:null);if(h&&typeof h.forEach==='function')h.forEach((v,k)=>headers[k]=v);const item={id:(crypto.randomUUID?crypto.randomUUID():'outbox-'+Date.now()+'-'+Math.random().toString(36).slice(2)),createdAt:new Date().toISOString(),state:'pending',url,method,headers,body};await put(item);refresh();return new Response(JSON.stringify({queued:true}),{status:202,headers:{'Content-Type':'application/json'}})}catch(e){console.error('Impossible de mettre en file locale',e);throw e}
    }
-   return original.apply(this,arguments);
+   try{return await original.apply(this,arguments)}catch(error){
+     if(method==='POST'&&url&&url.startsWith(ENDPOINT)){let body=init&&init.body!==undefined?init.body:(input instanceof Request?await input.clone().text():null);if(typeof body==='string'){const headers={};const h=(init&&init.headers)||(input instanceof Request?input.headers:null);if(h&&typeof h.forEach==='function')h.forEach((v,k)=>headers[k]=v);await put({id:(crypto.randomUUID?crypto.randomUUID():'outbox-'+Date.now()+'-'+Math.random().toString(36).slice(2)),createdAt:new Date().toISOString(),state:'pending',url,method,headers,body});refresh();return new Response(JSON.stringify({queued:true}),{status:202,headers:{'Content-Type':'application/json'}})}
+     }throw error;
+   }
  };
  window.addEventListener('online',async()=>{const items=await all();for(const x of items)if(x.state==='pending')await send(x.id);refresh()});
  window.addEventListener('offline',refresh);window.addEventListener('load',refresh);setTimeout(refresh,1200);
