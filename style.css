@@ -317,3 +317,5 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   body{padding-bottom:calc(190px + env(safe-area-inset-bottom,0px))!important}
 }
 .pdf-preview-modal.open{opacity:1;visibility:visible;pointer-events:auto}
+
+/* Menu EuroMed identique à la fiche de référence lève-personnes */
