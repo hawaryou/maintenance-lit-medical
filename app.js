@@ -396,7 +396,7 @@ document.getElementById('downloadPreviewPdf').onclick=()=>{
 document.getElementById('confirmSendPdf').onclick=async()=>{
   if(!pendingPDFResult)return;
   const button=document.getElementById('confirmSendPdf');button.disabled=true;
-  try{await sendPDFResult(pendingPDFResult);}catch(e){console.error(e);pdfPreviewStatus.textContent='Erreur pendant la transmission. Vous pouvez télécharger le PDF et réessayer.';document.getElementById('status').textContent='Erreur lors de la transmission.';button.disabled=false;}
+  try{await sendPDFResult(pendingPDFResult);}catch(e){console.error('[EUROMED-ENVOI] Échec détaillé :',e);const detail=String(e&&e.message||e||'Erreur inconnue');pdfPreviewStatus.textContent='Erreur pendant la transmission : '+detail+'. Téléchargez le PDF avant de réessayer.';document.getElementById('status').textContent='Erreur lors de la transmission : '+detail;button.disabled=false;}
 };
 document.getElementById('closePdfPreview').onclick=closePDFPreview;
 pdfPreviewModal.addEventListener('click',e=>{if(e.target===pdfPreviewModal)closePDFPreview()});
