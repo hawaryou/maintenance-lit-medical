@@ -1,8 +1,8 @@
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3S7bpJrnK4wmscfEZvAN3OO-WbkmnKt04C28ovVjpo3VCW--oqskkV1z1ZTxDL9al/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNnUPKGz8BYGg4G1Aw7PkHUVg7xleotBckHqJo7YvSscf0IPWU4_1IO8SnNPfTJ4M8/exec';
 const EMAIL_TO='valentineuromed@gmail.com';
 // URL de l'application Web Google Apps Script.
 // Après déploiement de Code.gs, colle ici l'URL qui se termine par /exec.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3S7bpJrnK4wmscfEZvAN3OO-WbkmnKt04C28ovVjpo3VCW--oqskkV1z1ZTxDL9al/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNnUPKGz8BYGg4G1Aw7PkHUVg7xleotBckHqJo7YvSscf0IPWU4_1IO8SnNPfTJ4M8/exec';
 // Optionnel : si tu définis APP_TOKEN dans les propriétés du script,
 // mets la même valeur ici. Sinon laisse une chaîne vide.
 const APP_TOKEN='';
