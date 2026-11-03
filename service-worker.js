@@ -1,9 +1,9 @@
 /* EuroMed maintenance — offline shell and PDF libraries */
-const CACHE_NAME="euromed-lit-offline-v3";
+const CACHE_NAME="euromed-maintenance-offline-v4";
 const SCOPE=self.registration.scope;
 const LOCAL_FILES=[
- SCOPE,SCOPE+"index.html",SCOPE+"style.css?v=20261020-rgpd-v1",SCOPE+"config.js?v=20261023-enr08-v07",
- SCOPE+"app.js?v=20261030-warning-sale-v4",SCOPE+"offline-queue.js",SCOPE+"euromed-logo.jpeg",SCOPE+"scan-success-euromed.jpg"
+ SCOPE,SCOPE+"index.html",SCOPE+"style.css?v=20261103-photo-signature-v1",SCOPE+"config.js?v=20261023-enr08-v07",
+ SCOPE+"app.js?v=20261103-photo-signature-v1",SCOPE+"offline-queue.js",SCOPE+"euromed-logo.jpeg",SCOPE+"scan-success-euromed.jpg"
 ];
 const REMOTE_FILES=[
  "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
