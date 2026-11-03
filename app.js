@@ -1,8 +1,8 @@
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNnUPKGz8BYGg4G1Aw7PkHUVg7xleotBckHqJo7YvSscf0IPWU4_1IO8SnNPfTJ4M8/exec';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlNWZNdyTInvUeJBCQi2lboeWrBs4iSkgosaqmbyXVOWwoQoUfFkGGtCP_v6ArKMY1/exec';
 const EMAIL_TO='valentineuromed@gmail.com';
 // URL de l'application Web Google Apps Script.
 // Après déploiement de Code.gs, colle ici l'URL qui se termine par /exec.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNnUPKGz8BYGg4G1Aw7PkHUVg7xleotBckHqJo7YvSscf0IPWU4_1IO8SnNPfTJ4M8/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlNWZNdyTInvUeJBCQi2lboeWrBs4iSkgosaqmbyXVOWwoQoUfFkGGtCP_v6ArKMY1/exec';
 // Optionnel : si tu définis APP_TOKEN dans les propriétés du script,
 // mets la même valeur ici. Sinon laisse une chaîne vide.
 const APP_TOKEN='';
@@ -405,7 +405,7 @@ async function sendPDFResult(result){
   pdfPreviewStatus.textContent='Transmission en cours…';status.textContent='Envoi du PDF…';
   const sendEuro=document.getElementById('sendToEuroMed')?.checked!==false,sendClient=document.getElementById('sendToClient')?.checked===true,clientMail=document.getElementById('clientEmail')?.value.trim()||'';if(!sendEuro&&!sendClient)throw new Error('Sélectionnez au moins un destinataire.');if(sendClient&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientMail))throw new Error('Saisissez une adresse e-mail client valide.');
     const b64=result.pdf.output('datauristring').split(',')[1];
-  const params=new URLSearchParams({token:APP_TOKEN,pdf_base64:b64,filename,client:data.client,technicien:data.technicien,date:data.date,reference:data.reference,sendToEuroMed:document.getElementById('sendToEuroMed')?.checked===false?'false':'true',sendToClient:document.getElementById('sendToClient')?.checked?'true':'false',clientEmail:document.getElementById('clientEmail')?.value.trim()||'',serie:batchFinalized?`${result.records.length} lits`:data.serie});
+  const params=new URLSearchParams({token:APP_TOKEN,pdf_base64:b64,filename,client:data.client,technicien:data.technicien,date:data.date,reference:data.reference,sendToEuroMed:document.getElementById('sendToEuroMed')?.checked===false?'false':'true',sendToClient:document.getElementById('sendToClient')?.checked?'true':'false',clientEmail:document.getElementById('clientEmail')?.value.trim()||'',signerFirstName:data.signerFirstName||'',signerLastName:data.signerLastName||'',signerRole:data.signerRole||'',signerType:data.signerType||'private',serie:batchFinalized?`${result.records.length} lits`:data.serie});
   const response=await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:params.toString()});
   if(response.status===202){const queued='📴 PDF généré en mode hors ligne et ajouté à la liste d’attente hors connexion. L’aperçu va se fermer. Il sera envoyé lorsque la connexion reviendra ; vérifiez ensuite la réception du courriel.';status.textContent=queued;pdfPreviewStatus.textContent=queued;document.getElementById('confirmSendPdf').disabled=true;showMessage(queued,'success');closePDFPreview();return;}
   const msg=batchFinalized?`Dossier de ${result.records.length} lits transmis à ${EMAIL_TO}. Signature client unique appliquée.`:`Demande d’envoi transmise à ${EMAIL_TO}. Vérifiez la boîte de réception.`;
