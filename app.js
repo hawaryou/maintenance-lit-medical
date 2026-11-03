@@ -348,8 +348,13 @@ function renderPDFPage(pdf,d){
   // Garder les signatures entièrement sur la page : le PDF A4 s'arrête à 297 mm.
   if(y+55>285){pdf.addPage();y=12;}
   pdf.text(`Rappel des consignes de sécurité : ${d.securite||'—'}`,M,y);pdf.text('* suivant norme NF EN 60601-2-52',M,y+5);pdf.text(`Fait le : ${d.date||'—'}    Technicien : ${d.technicien||'—'}`,M,y+12);
-  pdf.setFont('helvetica','bold');pdf.text('Signature du technicien',M,y+19);pdf.text('Signature du client',110,y+19);pdf.rect(M,y+21,90,30);pdf.rect(110,y+21,90,30);
-  if(d.sigTech)pdf.addImage(d.sigTech,'PNG',M+2,y+23,86,26);if(d.sigClient)pdf.addImage(d.sigClient,'PNG',112,y+23,86,26);
+  const signerFirst=String(d.signerFirstName||document.getElementById('signerFirstName')?.value||'').trim();
+  const signerLast=String(d.signerLastName||document.getElementById('signerLastName')?.value||'').trim();
+  const signerRole=String(d.signerRole||document.getElementById('signerRole')?.value||'').trim();
+  pdf.setFont('helvetica','bold');pdf.setFontSize(7);pdf.text('IDENTIFICATION DU SIGNATAIRE CLIENT',110,y+19);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.text('Nom : '+([signerFirst,signerLast].filter(Boolean).join(' ')||'—'),110,y+23,{maxWidth:86});if(signerRole)pdf.text('Fonction : '+signerRole,110,y+27,{maxWidth:86});
+  pdf.setFont('helvetica','bold');pdf.setFontSize(8);pdf.text('Signature du technicien',M,y+32);pdf.text('Signature du client',110,y+32);pdf.rect(M,y+34,90,18);pdf.rect(110,y+34,90,18);
+  if(d.sigTech)pdf.addImage(d.sigTech,'PNG',M+2,y+35,86,16);if(d.sigClient)pdf.addImage(d.sigClient,'PNG',112,y+35,86,16);
 }
 
 function makePDFForData(d,pdf){
